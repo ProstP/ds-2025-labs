@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StackExchange.Redis;
@@ -22,6 +23,12 @@ public class IndexModel : PageModel
 
     public IActionResult OnPost(string text)
     {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return Redirect("index");
+            // text = "";
+        }
+
         _logger.LogDebug(text);
 
         IDatabase db = _redis.GetDatabase();
