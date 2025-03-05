@@ -11,7 +11,11 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorPages();
 
-        builder.Services.AddSingleton<IConnectionMultiplexer>(options => ConnectionMultiplexer.Connect("localhost:6379"));
+        builder.Services.AddSingleton<IConnectionMultiplexer>(options =>
+        {
+            string? configuration = builder.Configuration.GetValue<string>("Redis:ConnectionStr") ?? "";
+            return ConnectionMultiplexer.Connect(configuration);
+        });
 
         var app = builder.Build();
 
