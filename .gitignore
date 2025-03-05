@@ -4,3 +4,8 @@ obj/
 
 /.vscode/
 /.idea/
+
+nginx/*
+!nginx/conf/
+nginx/conf/*
+!nginx/conf/nginx.conf
