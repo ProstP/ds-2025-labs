@@ -30,6 +30,7 @@ public class IndexModel : PageModel
         }
 
         _logger.LogDebug(text);
+        _logger.LogInformation(text);
 
         IDatabase db = _redis.GetDatabase();
 
