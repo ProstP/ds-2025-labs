@@ -1,0 +1,49 @@
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redisdata:/data
+    restart: unless-stopped
+  server1:
+    volumes:
+      - data-protection-keys:/root/.aspnet/DataProtection-Keys
+    build:
+      context: ./Valuator
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5001
+    ports:
+      - "5001:5001"
+    depends_on:
+      - redis
+    restart: unless-stopped
+  server2:
+    volumes:
+      - data-protection-keys:/root/.aspnet/DataProtection-Keys
+    build:
+      context: ./Valuator
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5002
+    ports:
+      - "5002:5002"
+    depends_on:
+      - redis
+    restart: unless-stopped
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server1
+      - server2
+    restart: unless-stopped
+
+volumes:
+  data-protection-keys:
