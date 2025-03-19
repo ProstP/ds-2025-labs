@@ -9,3 +9,5 @@ nginx/*
 !nginx/conf/
 nginx/conf/*
 !nginx/conf/nginx.conf
+
+redisdata/
