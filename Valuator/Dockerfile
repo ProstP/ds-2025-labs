@@ -17,5 +17,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
 COPY --from=build /app .
+COPY --from=build /source/Valuator/appsettings*.json .
 
 ENTRYPOINT ["dotnet", "Valuator.dll"]
