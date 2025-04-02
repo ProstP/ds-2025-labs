@@ -34,11 +34,7 @@ public class IndexModel : PageModel
         if (string.IsNullOrWhiteSpace(text))
         {
             return Redirect("index");
-            // text = "";
         }
-
-        _logger.LogDebug(text);
-        _logger.LogInformation(text);
 
         IDatabase db = _redis.GetDatabase();
 
@@ -47,11 +43,14 @@ public class IndexModel : PageModel
         string textKey = "TEXT-" + id;
         db.StringSet(textKey, text);
 
+        _logger.LogDebug($"Saved text: {text} with id: {id}");
+        _logger.LogInformation($"Saved text: {text} with id: {id}");
+
         string similarityKey = "SIMILARITY-" + id;
         double similarity = CalculateSimilarity(db, text, textKey);
         db.StringSet(similarityKey, similarity);
 
-        await _messageBroker.SendMessageAsync(_rankCalculatorMessageBrokerQueueName, textKey);
+        await _messageBroker.SendMessageAsync(_rankCalculatorMessageBrokerQueueName, id);
 
         return Redirect($"summary?id={id}");
     }
