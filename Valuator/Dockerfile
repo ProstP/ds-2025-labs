@@ -2,17 +2,15 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /source
 
-COPY *.csproj ./
-RUN dotnet restore
+COPY *.sln .
+COPY ./Valuator/*.csproj ./Valuator/
+COPY ./MessageBroker/*.csproj ./MessageBroker/
+RUN dotnet restore ./Valuator/Valuator.csproj
 
-COPY ./Pages ./Pages
-COPY ./Properties ./Properties
-COPY ./wwwroot ./wwwroot
-COPY appsettings.json appsettings.json
-COPY appsettings.Development.json appsettings.Development.json
-COPY Program.cs Program.cs
+COPY ./Valuator ./Valuator/
+COPY ./MessageBroker ./MessageBroker/
 
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish ./Valuator/Valuator.csproj -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 

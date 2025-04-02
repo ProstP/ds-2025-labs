@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using MessageBroker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StackExchange.Redis;
@@ -9,11 +9,19 @@ public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;
     private readonly IConnectionMultiplexer _redis;
+    private readonly IMessageBroker _messageBroker;
+    private readonly string _rankCalculatorMessageBrokerQueueName;
 
-    public IndexModel(ILogger<IndexModel> logger, IConnectionMultiplexer redis)
+    public IndexModel(
+        ILogger<IndexModel> logger,
+        IConnectionMultiplexer redis,
+        IMessageBroker messageBroker,
+        IConfiguration configuration)
     {
         _logger = logger;
         _redis = redis;
+        _messageBroker = messageBroker;
+        _rankCalculatorMessageBrokerQueueName = configuration["RankCalculatorRabbitMq:QueueName"];
     }
 
     public void OnGet()
@@ -21,7 +29,7 @@ public class IndexModel : PageModel
 
     }
 
-    public IActionResult OnPost(string text)
+    public async Task<IActionResult> OnPost(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -37,36 +45,17 @@ public class IndexModel : PageModel
         string id = Guid.NewGuid().ToString();
 
         string textKey = "TEXT-" + id;
-        // TODO: (pa1) сохранить в БД (Redis) text по ключу textKey
         db.StringSet(textKey, text);
 
-        string rankKey = "RANK-" + id;
-        // TODO: (pa1) посчитать rank и сохранить в БД (Redis) по ключу rankKey
-        double rank = CalculateRank(text);
-        db.StringSet(rankKey, rank);
-
         string similarityKey = "SIMILARITY-" + id;
-        // TODO: (pa1) посчитать similarity и сохранить в БД (Redis) по ключу similarityKey
         double similarity = CalculateSimilarity(db, text, textKey);
         db.StringSet(similarityKey, similarity);
+
+        await _messageBroker.SendMessageAsync(_rankCalculatorMessageBrokerQueueName, textKey);
 
         return Redirect($"summary?id={id}");
     }
 
-    private double CalculateRank(string text)
-    {
-        double count = 0;
-
-        foreach (char ch in text)
-        {
-            if (!char.IsLetter(ch))
-            {
-                count++;
-            }
-        }
-
-        return count / text.Length;
-    }
     private double CalculateSimilarity(IDatabase db, string text, string textKey)
     {
         IServer server = _redis.GetServer(_redis.GetEndPoints().First());

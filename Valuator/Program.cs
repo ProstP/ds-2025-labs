@@ -1,12 +1,14 @@
+using MessageBroker;
+using MessageBroker.Rabbit;
 using StackExchange.Redis;
 
 namespace Valuator;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
         builder.Services.AddRazorPages();
@@ -16,6 +18,14 @@ public class Program
             string configuration = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STR");
             return ConnectionMultiplexer.Connect(configuration);
         });
+
+        builder.Services.AddSingleton<IMessageBroker>(
+            await RabbitMqService.CreateAsync(
+                Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
+                builder.Configuration.GetValue<string>("RankCalculatorRabbitMq:QueueName"),
+                builder.Configuration.GetValue<string>("RankCalculatorRabbitMq:ExchangeName")
+            )
+        );
 
         var app = builder.Build();
 

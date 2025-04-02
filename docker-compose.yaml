@@ -30,8 +30,8 @@ services:
     volumes:
       - data-protection-keys:/root/.aspnet/DataProtection-Keys
     build:
-      context: ./Valuator
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Valuator/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5001
@@ -48,8 +48,8 @@ services:
     volumes:
       - data-protection-keys:/root/.aspnet/DataProtection-Keys
     build:
-      context: ./Valuator
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Valuator/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5002
