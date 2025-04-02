@@ -13,7 +13,7 @@ public class Program
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(options =>
         {
-            string? configuration = builder.Configuration.GetValue<string>("Redis:ConnectionStr") ?? "";
+            string configuration = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STR");
             return ConnectionMultiplexer.Connect(configuration);
         });
 

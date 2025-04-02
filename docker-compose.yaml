@@ -6,6 +6,7 @@ services:
     volumes:
       - ./redisdata:/data
     restart: unless-stopped
+
   server1:
     volumes:
       - data-protection-keys:/root/.aspnet/DataProtection-Keys
@@ -15,11 +16,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5001
+    env_file:
+      - .env
     ports:
       - "5001:5001"
     depends_on:
       - redis
     restart: unless-stopped
+
   server2:
     volumes:
       - data-protection-keys:/root/.aspnet/DataProtection-Keys
@@ -29,11 +33,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5002
+    env_file:
+      - .env
     ports:
       - "5002:5002"
     depends_on:
       - redis
     restart: unless-stopped
+
   nginx:
     build:
       context: ./nginx
