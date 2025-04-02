@@ -26,7 +26,6 @@ public class SummaryModel : PageModel
     {
         _logger.LogDebug(id);
 
-        // TODO: (pa1) проинициализировать свойства Rank и Similarity значениями из БД (Redis)
         IDatabase db = _redis.GetDatabase();
 
         RedisValue rankValue = db.StringGet($"RANK-{id}");
