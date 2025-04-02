@@ -17,6 +17,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
 COPY --from=build /app .
-COPY --from=build /source/appsettings*.json .
+COPY --from=build /source/RankCalculator/appsettings*.json .
 
 ENTRYPOINT ["dotnet", "RankCalculator.dll"]
