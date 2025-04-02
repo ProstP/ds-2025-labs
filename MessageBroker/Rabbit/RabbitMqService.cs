@@ -25,7 +25,7 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
             .Handle<Exception>()
             .WaitAndRetryAsync(
                 retryCount: 5,
-                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(2));
 
         return retryPolicy.ExecuteAsync(async () =>
         {
@@ -37,7 +37,7 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
             IConnection connection = await factory.CreateConnectionAsync();
             IChannel channel = await connection.CreateChannelAsync();
 
-            await DeclareTopologyAsync(channel, hostname, exchangeName);
+            await DeclareTopologyAsync(channel, queueName, exchangeName);
 
             return new RabbitMqService(connection, channel);
         });
@@ -48,14 +48,12 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
             exchange: exchangeName,
             type: ExchangeType.Direct
         );
-
         await channel.QueueDeclareAsync(
             queue: queueName,
             durable: true,
             exclusive: false,
             autoDelete: false
         );
-
         await channel.QueueBindAsync(
             queue: queueName,
             exchange: exchangeName,
