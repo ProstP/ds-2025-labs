@@ -10,7 +10,7 @@ public class IndexModel : PageModel
     private readonly ILogger<IndexModel> _logger;
     private readonly IConnectionMultiplexer _redis;
     private readonly IMessageBroker _messageBroker;
-    private readonly string _rankCalculatorMessageBrokerQueueName;
+    private readonly string _rankCalculatorMessageBrokerExchangeName;
 
     public IndexModel(
         ILogger<IndexModel> logger,
@@ -21,7 +21,7 @@ public class IndexModel : PageModel
         _logger = logger;
         _redis = redis;
         _messageBroker = messageBroker;
-        _rankCalculatorMessageBrokerQueueName = configuration["RankCalculatorRabbitMq:QueueName"];
+        _rankCalculatorMessageBrokerExchangeName = configuration["RankCalculatorRabbitMq:ExchangeName"];
     }
 
     public void OnGet()
@@ -50,7 +50,7 @@ public class IndexModel : PageModel
         double similarity = CalculateSimilarity(db, text, textKey);
         db.StringSet(similarityKey, similarity);
 
-        await _messageBroker.SendMessageAsync(_rankCalculatorMessageBrokerQueueName, id);
+        await _messageBroker.SendMessageAsync(_rankCalculatorMessageBrokerExchangeName, id);
 
         return Redirect($"summary?id={id}");
     }

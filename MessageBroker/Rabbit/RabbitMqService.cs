@@ -57,7 +57,7 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
         await channel.QueueBindAsync(
             queue: queueName,
             exchange: exchangeName,
-            routingKey: ""
+            routingKey: string.Empty
         );
     }
 
@@ -80,11 +80,11 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
         );
     }
 
-    public async Task SendMessageAsync(string queueName, string message)
+    public async Task SendMessageAsync(string exchangeName, string message)
     {
         byte[] data = Encoding.UTF8.GetBytes(message);
 
-        await _channel.BasicPublishAsync(exchange: string.Empty, routingKey: queueName, body: data);
+        await _channel.BasicPublishAsync(exchange: exchangeName, routingKey: string.Empty, body: data);
     }
 
     public async ValueTask DisposeAsync()
