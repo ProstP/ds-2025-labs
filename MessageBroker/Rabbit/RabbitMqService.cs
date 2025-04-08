@@ -40,7 +40,7 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
             return new RabbitMqService(connection, channel);
         });
     }
-    public async Task DeclareTopologyAsync(string queueName, string exchangeName)
+    public async Task DeclareTopologyAsync(string queueName, string exchangeName, string routingKey = "")
     {
         await _channel.ExchangeDeclareAsync(
             exchange: exchangeName,
@@ -55,7 +55,7 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
         await _channel.QueueBindAsync(
             queue: queueName,
             exchange: exchangeName,
-            routingKey: string.Empty
+            routingKey: routingKey
         );
     }
 
@@ -64,7 +64,7 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
         AsyncEventingBasicConsumer consumer = new(_channel);
         consumer.ReceivedAsync += async (_, args) =>
         {
-            var message = Encoding.UTF8.GetString(args.Body.ToArray());
+            string message = Encoding.UTF8.GetString(args.Body.ToArray());
 
             messageHandler(message);
 
@@ -78,11 +78,11 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
         );
     }
 
-    public async Task SendMessageAsync(string exchangeName, string message)
+    public async Task SendMessageAsync(string exchangeName, string message, string routingKey = "")
     {
         byte[] data = Encoding.UTF8.GetBytes(message);
 
-        await _channel.BasicPublishAsync(exchange: exchangeName, routingKey: string.Empty, body: data);
+        await _channel.BasicPublishAsync(exchange: exchangeName, routingKey: routingKey, body: data);
     }
 
     public async ValueTask DisposeAsync()
