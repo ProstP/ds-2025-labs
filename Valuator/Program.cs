@@ -23,7 +23,13 @@ public class Program
             CreateAsync(Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"));
         await rabbitMqService.DeclareTopologyAsync(
             Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
-            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME"));
+            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME")
+        );
+        await rabbitMqService.DeclareTopologyAsync(
+            Environment.GetEnvironmentVariable("EVENT_LOGGER_RABBIT_MQ_QUEUE_NAME"),
+            Environment.GetEnvironmentVariable("EVENT_LOGGER_RABBIT_MQ_EXCHANGE_NAME"),
+            Environment.GetEnvironmentVariable("EVENT_SIMILARITY_CALCULATED_ROUTING_KEY")
+        );
         builder.Services.AddSingleton<IMessageBroker>(rabbitMqService);
 
         WebApplication app = builder.Build();

@@ -11,6 +11,8 @@ public class IndexModel : PageModel
     private readonly IConnectionMultiplexer _redis;
     private readonly IMessageBroker _messageBroker;
     private readonly string _rankCalculatorMessageBrokerExchangeName;
+    private readonly string _similarityCalculateMessageBrokerExchangeName;
+    private readonly string _similarityCalculatedRoutingKey;
 
     public IndexModel(
         ILogger<IndexModel> logger,
@@ -21,8 +23,9 @@ public class IndexModel : PageModel
         _logger = logger;
         _redis = redis;
         _messageBroker = messageBroker;
-        _rankCalculatorMessageBrokerExchangeName =
-            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME");
+        _rankCalculatorMessageBrokerExchangeName = Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME");
+        _similarityCalculateMessageBrokerExchangeName = Environment.GetEnvironmentVariable("EVENT_LOGGER_RABBIT_MQ_EXCHANGE_NAME");
+        _similarityCalculatedRoutingKey = Environment.GetEnvironmentVariable("EVENT_SIMILARITY_CALCULATED_ROUTING_KEY");
     }
 
     public void OnGet()
@@ -49,6 +52,11 @@ public class IndexModel : PageModel
         string similarityKey = "SIMILARITY-" + id;
         double similarity = CalculateSimilarity(db, text, textKey);
         db.StringSet(similarityKey, similarity);
+
+        await _messageBroker.SendMessageAsync(
+            _similarityCalculateMessageBrokerExchangeName,
+            $"id: {id}, similarity: {similarity}",
+            _similarityCalculatedRoutingKey);
 
         await _messageBroker.SendMessageAsync(_rankCalculatorMessageBrokerExchangeName, id);
 
