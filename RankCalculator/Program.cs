@@ -14,11 +14,12 @@ public class Program
                                  .GetDatabase()
         );
 
-        RabbitMqService messageBroker = await RabbitMqService.CreateAsync(
-                Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
-                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
-                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME")
-        );
+
+        RabbitMqService messageBroker = await RabbitMqService.
+            CreateAsync(Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"));
+        await messageBroker.DeclareTopologyAsync(
+            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
+            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME"));
 
         await messageBroker.ReceiveMessageAsync(Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
             rankCalculatorService.Proccess);

@@ -19,13 +19,12 @@ public class Program
             return ConnectionMultiplexer.Connect(configuration);
         });
 
-        builder.Services.AddSingleton<IMessageBroker>(
-            await RabbitMqService.CreateAsync(
-                Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
-                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
-                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME")
-            )
-        );
+        RabbitMqService rabbitMqService = await RabbitMqService.
+            CreateAsync(Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"));
+        await rabbitMqService.DeclareTopologyAsync(
+            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
+            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME"));
+        builder.Services.AddSingleton<IMessageBroker>(rabbitMqService);
 
         WebApplication app = builder.Build();
 

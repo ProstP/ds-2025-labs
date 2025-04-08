@@ -19,7 +19,7 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
         _channel = channel;
     }
 
-    public static Task<RabbitMqService> CreateAsync(string hostname, string queueName, string exchangeName)
+    public static Task<RabbitMqService> CreateAsync(string hostname)
     {
         AsyncRetryPolicy retryPolicy = Policy
             .Handle<Exception>()
@@ -37,24 +37,22 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
             IConnection connection = await factory.CreateConnectionAsync();
             IChannel channel = await connection.CreateChannelAsync();
 
-            await DeclareTopologyAsync(channel, queueName, exchangeName);
-
             return new RabbitMqService(connection, channel);
         });
     }
-    private static async Task DeclareTopologyAsync(IChannel channel, string queueName, string exchangeName)
+    public async Task DeclareTopologyAsync(string queueName, string exchangeName)
     {
-        await channel.ExchangeDeclareAsync(
+        await _channel.ExchangeDeclareAsync(
             exchange: exchangeName,
-            type: ExchangeType.Direct
+            type: ExchangeType.Topic
         );
-        await channel.QueueDeclareAsync(
+        await _channel.QueueDeclareAsync(
             queue: queueName,
             durable: true,
             exclusive: false,
             autoDelete: false
         );
-        await channel.QueueBindAsync(
+        await _channel.QueueBindAsync(
             queue: queueName,
             exchange: exchangeName,
             routingKey: string.Empty
