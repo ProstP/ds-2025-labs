@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RankCalculator", "RankCalcu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageBroker", "MessageBroker\MessageBroker.csproj", "{72F2F1E6-5321-485E-A9BC-EE7E089B152E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventsLogger", "EventsLogger\EventsLogger.csproj", "{EB064824-3AAD-4353-94F4-76BDDC11A407}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{72F2F1E6-5321-485E-A9BC-EE7E089B152E}.Release|x64.Build.0 = Release|Any CPU
 		{72F2F1E6-5321-485E-A9BC-EE7E089B152E}.Release|x86.ActiveCfg = Release|Any CPU
 		{72F2F1E6-5321-485E-A9BC-EE7E089B152E}.Release|x86.Build.0 = Release|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Debug|x64.Build.0 = Debug|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Debug|x86.Build.0 = Debug|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Release|x64.ActiveCfg = Release|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Release|x64.Build.0 = Release|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Release|x86.ActiveCfg = Release|Any CPU
+		{EB064824-3AAD-4353-94F4-76BDDC11A407}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

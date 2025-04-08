@@ -32,6 +32,32 @@ services:
     networks:
       - app_network
 
+  events_logger_1:
+    build:
+      context: .
+      dockerfile: EventsLogger/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - app_network
+
+  events_logger_2:
+    build:
+      context: .
+      dockerfile: EventsLogger/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - app_network
+
   server1:
     volumes:
       - data-protection-keys:/root/.aspnet/DataProtection-Keys
