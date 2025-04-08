@@ -21,12 +21,12 @@ public class IndexModel : PageModel
         _logger = logger;
         _redis = redis;
         _messageBroker = messageBroker;
-        _rankCalculatorMessageBrokerExchangeName = configuration["RankCalculatorRabbitMq:ExchangeName"];
+        _rankCalculatorMessageBrokerExchangeName =
+            Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME");
     }
 
     public void OnGet()
     {
-
     }
 
     public async Task<IActionResult> OnPost(string text)

@@ -9,12 +9,6 @@ public class Program
     {
         Console.WriteLine("RankCalculator start word");
 
-        IConfigurationRoot config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build();
-
         RankCalculatorService rankCalculatorService = new(
             ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STR"))
                                  .GetDatabase()
@@ -22,14 +16,14 @@ public class Program
 
         RabbitMqService messageBroker = await RabbitMqService.CreateAsync(
                 Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
-                config.GetSection("RankCalculatorRabbitMq")["QueueName"],
-                config.GetSection("RankCalculatorRabbitMq")["ExchangeName"]
+                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
+                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME")
         );
 
-        await messageBroker.ReceiveMessageAsync(config.GetSection("RankCalculatorRabbitMq")["QueueName"],
+        await messageBroker.ReceiveMessageAsync(Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
             rankCalculatorService.Proccess);
 
-        var exitEvent = new TaskCompletionSource<bool>();
+        TaskCompletionSource<bool> exitEvent = new TaskCompletionSource<bool>();
         Console.CancelKeyPress += async (sender, args) =>
         {
             Console.WriteLine("Stopping rankCalculator");

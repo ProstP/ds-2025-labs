@@ -22,12 +22,12 @@ public class Program
         builder.Services.AddSingleton<IMessageBroker>(
             await RabbitMqService.CreateAsync(
                 Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
-                builder.Configuration.GetValue<string>("RankCalculatorRabbitMq:QueueName"),
-                builder.Configuration.GetValue<string>("RankCalculatorRabbitMq:ExchangeName")
+                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
+                Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME")
             )
         );
 
-        var app = builder.Build();
+        WebApplication app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
