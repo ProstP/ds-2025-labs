@@ -1,6 +1,7 @@
 using MessageBroker;
 using MessageBroker.Rabbit;
 using StackExchange.Redis;
+using Valuator.SignalR;
 
 namespace Valuator;
 
@@ -30,7 +31,10 @@ public class Program
             Environment.GetEnvironmentVariable("EVENT_LOGGER_RABBIT_MQ_EXCHANGE_NAME"),
             Environment.GetEnvironmentVariable("EVENT_SIMILARITY_CALCULATED_ROUTING_KEY")
         );
+
         builder.Services.AddSingleton<IMessageBroker>(rabbitMqService);
+
+        builder.Services.AddSignalR();
 
         WebApplication app = builder.Build();
 
@@ -39,11 +43,15 @@ public class Program
         {
             app.UseExceptionHandler("/Error");
         }
-        app.UseStaticFiles();
-
         app.UseRouting();
 
         app.UseAuthorization();
+
+        app.UseWebSockets();
+
+        app.MapHub<ChatHub>("/chat");
+
+        app.UseStaticFiles();
 
         app.MapRazorPages();
 

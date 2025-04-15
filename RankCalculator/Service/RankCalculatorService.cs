@@ -23,6 +23,8 @@ public class RankCalculatorService
     {
         string text = _db.StringGet($"TEXT-{id}");
 
+        Thread.Sleep(5000);
+
         Console.WriteLine($"Calculate rank for {text} with id: {id}");
         double rank = CalculateRank(text);
         Console.WriteLine($"{id} has rank: {rank}");
