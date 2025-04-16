@@ -12,6 +12,7 @@ public class RedisDatabase : IDatabaseService
         for (int i = 0; i < keys.Length; i++)
         {
             values.Add(db.StringGet(keys[i]));
+            Console.WriteLine($"Key: {keys[i]}, segment: {shardKey}");
         }
 
         return values.ToArray();
@@ -21,6 +22,7 @@ public class RedisDatabase : IDatabaseService
     {
         IDatabase db = ConnectToDatabase(shardKey);
 
+        Console.WriteLine($"Key: {key}, segment: {shardKey}");
         return db.StringGet(key);
     }
 
@@ -46,13 +48,30 @@ public class RedisDatabase : IDatabaseService
 
     private IDatabase ConnectToDatabase(string shardKey)
     {
-        string connectionStr = Environment.GetEnvironmentVariable($"REDIS_{shardKey}_CONNECTION_STR");
+        return GetConnectionMultiplexer(shardKey).GetDatabase();
+    }
+    private IConnectionMultiplexer GetConnectionMultiplexer(string shardKey)
+    {
+        string environmentLocation = $"REDIS_{shardKey}_CONNECTION_STR";
+        string connectionStr = Environment.GetEnvironmentVariable(environmentLocation);
 
         if (string.IsNullOrWhiteSpace(connectionStr))
         {
             throw new ArgumentException("Unknown shard key");
         }
 
-        return ConnectionMultiplexer.Connect(connectionStr).GetDatabase();
+        return ConnectionMultiplexer.Connect(connectionStr);
+    }
+
+    public IServer GetServerOfDB(string shardKey)
+    {
+        IConnectionMultiplexer connectionMultiplexer = GetConnectionMultiplexer(shardKey);
+
+        return connectionMultiplexer.GetServer(connectionMultiplexer.GetEndPoints().First());
+    }
+
+    public void Set(string shardKey, string key, string value)
+    {
+        Set(shardKey, new KeyValuePair<string, string>(key, value));
     }
 }
