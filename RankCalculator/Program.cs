@@ -1,6 +1,6 @@
-﻿using MessageBroker.Rabbit;
+﻿using DatabaseService.Redis;
+using MessageBroker.Rabbit;
 using RankCalculator.Service;
-using StackExchange.Redis;
 
 public class Program
 {
@@ -20,7 +20,7 @@ public class Program
         );
 
         RankCalculatorService rankCalculatorService = new(
-            ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STR")).GetDatabase(),
+            new RedisDatabase(),
             messageBroker
         );
 

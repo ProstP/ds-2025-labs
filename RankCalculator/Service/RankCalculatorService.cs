@@ -1,17 +1,16 @@
-using System.Threading.Tasks;
+using DatabaseService;
 using MessageBroker;
-using StackExchange.Redis;
 
 namespace RankCalculator.Service;
 
 public class RankCalculatorService
 {
-    private readonly IDatabase _db;
+    private readonly IDatabaseService _db;
     private readonly string _rankCalculateMessageBrokerExchangeName;
     private readonly string _rankCalculatedRoutingKey;
     private readonly IMessageBroker _messageBroker;
 
-    public RankCalculatorService(IDatabase db, IMessageBroker messageBroker)
+    public RankCalculatorService(IDatabaseService db, IMessageBroker messageBroker)
     {
         _db = db;
         _rankCalculateMessageBrokerExchangeName = Environment.GetEnvironmentVariable("EVENT_LOGGER_RABBIT_MQ_EXCHANGE_NAME");
@@ -21,7 +20,8 @@ public class RankCalculatorService
 
     public async Task Proccess(string id)
     {
-        string text = _db.StringGet($"TEXT-{id}");
+        string shardKey = _db.Get("MAIN", id);
+        string text = _db.Get(shardKey, $"TEXT-{id}");
 
         Console.WriteLine($"Calculate rank for {text} with id: {id}");
         double rank = CalculateRank(text);
@@ -29,7 +29,7 @@ public class RankCalculatorService
 
         await SendRankAsync(id, rank);
 
-        _db.StringSet($"RANK-{id}", rank);
+        _db.Set(shardKey, $"RANK-{id}", rank.ToString());
     }
 
     private double CalculateRank(string text)
