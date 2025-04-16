@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using DatabaseService;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 
 namespace Valuator.Pages;
 public class SummaryModel : PageModel
 {
     private readonly ILogger<SummaryModel> _logger;
-    private readonly IConnectionMultiplexer _redis;
+    private readonly IDatabaseService _db;
 
-    public SummaryModel(ILogger<SummaryModel> logger, IConnectionMultiplexer redis)
+    public SummaryModel(ILogger<SummaryModel> logger, IDatabaseService db)
     {
         _logger = logger;
-        _redis = redis;
+        _db = db;
     }
 
     public double Rank { get; set; }
@@ -26,18 +20,18 @@ public class SummaryModel : PageModel
     {
         _logger.LogDebug(id);
 
-        IDatabase db = _redis.GetDatabase();
+        string shardKey = _db.Get("MAIN", id);
 
-        RedisValue rankValue = db.StringGet($"RANK-{id}");
-        if (!string.IsNullOrWhiteSpace(rankValue))
+        string[] values = _db.Get(shardKey, [$"RANK-{id}", $"SIMILARITY-{id}"]);
+
+        if (double.TryParse(values[0], out double rank))
         {
-            Rank = (double)rankValue;
+            Rank = rank;
         }
 
-        RedisValue similarityValue = db.StringGet($"SIMILARITY-{id}");
-        if (!string.IsNullOrWhiteSpace(similarityValue))
+        if (double.TryParse(values[1], out double similarity))
         {
-            Similarity = (double)similarityValue;
+            Similarity = similarity;
         }
     }
 }

@@ -1,6 +1,7 @@
+using DatabaseService;
+using DatabaseService.Redis;
 using MessageBroker;
 using MessageBroker.Rabbit;
-using StackExchange.Redis;
 
 namespace Valuator;
 
@@ -13,11 +14,7 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorPages();
 
-        builder.Services.AddSingleton<IConnectionMultiplexer>(options =>
-        {
-            string configuration = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STR");
-            return ConnectionMultiplexer.Connect(configuration);
-        });
+        builder.Services.AddSingleton<IDatabaseService, RedisDatabase>();
 
         RabbitMqService rabbitMqService = await RabbitMqService.
             CreateAsync(Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"));
