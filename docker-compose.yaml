@@ -59,33 +59,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis
-      - rabbitmq
-    restart: unless-stopped
-    networks:
-      - app_network
-
-  events_logger_1:
-    build:
-      context: .
-      dockerfile: EventsLogger/Dockerfile
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - rabbitmq
-    restart: unless-stopped
-    networks:
-      - app_network
-
-  events_logger_2:
-    build:
-      context: .
-      dockerfile: EventsLogger/Dockerfile
-    env_file:
-      - .env
-    depends_on:
-      - redis
+      - redis_main
+      - redis_ru
+      - redis_eu
+      - redis_asia
       - rabbitmq
     restart: unless-stopped
     networks:
@@ -105,7 +82,10 @@ services:
     ports:
       - "5001:5001"
     depends_on:
-      - redis
+      - redis_main
+      - redis_ru
+      - redis_eu
+      - redis_asia
       - rabbitmq
     restart: unless-stopped
     networks:
@@ -125,8 +105,39 @@ services:
     ports:
       - "5002:5002"
     depends_on:
-      - redis
+      - redis_main
+      - redis_ru
+      - redis_eu
+      - redis_asia
       - rabbitmq
+    restart: unless-stopped
+    networks:
+      - app_network
+
+  events_logger_1:
+    build:
+      context: .
+      dockerfile: EventsLogger/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - server1
+      - server2
+      - rank_calculator
+    restart: unless-stopped
+    networks:
+      - app_network
+
+  events_logger_2:
+    build:
+      context: .
+      dockerfile: EventsLogger/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - server1
+      - server2
+      - rank_calculator
     restart: unless-stopped
     networks:
       - app_network
