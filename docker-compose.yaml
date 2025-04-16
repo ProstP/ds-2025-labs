@@ -1,5 +1,5 @@
 services:
-  redis_main:
+  redismain:
     image: redis:latest
     container_name: redisValuatorMain
     ports:
@@ -10,7 +10,7 @@ services:
     networks:
       - app_network
 
-  redis_ru:
+  redisru:
     image: redis:latest
     container_name: redisValuatorRu
     ports:
@@ -21,7 +21,7 @@ services:
     networks:
       - app_network
 
-  redis_eu:
+  rediseu:
     image: redis:latest
     container_name: redisValuatorEu
     ports:
@@ -32,7 +32,7 @@ services:
     networks:
       - app_network
 
-  redis_asia:
+  redisasia:
     image: redis:latest
     container_name: redisValuatorAsia
     ports:
@@ -59,10 +59,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis_main
-      - redis_ru
-      - redis_eu
-      - redis_asia
+      - redismain
+      - redisru
+      - rediseu
+      - redisasia
       - rabbitmq
     restart: unless-stopped
     networks:
@@ -82,10 +82,10 @@ services:
     ports:
       - "5001:5001"
     depends_on:
-      - redis_main
-      - redis_ru
-      - redis_eu
-      - redis_asia
+      - redismain
+      - redisru
+      - rediseu
+      - redisasia
       - rabbitmq
     restart: unless-stopped
     networks:
@@ -105,10 +105,10 @@ services:
     ports:
       - "5002:5002"
     depends_on:
-      - redis_main
-      - redis_ru
-      - redis_eu
-      - redis_asia
+      - redismain
+      - redisru
+      - rediseu
+      - redisasia
       - rabbitmq
     restart: unless-stopped
     networks:
