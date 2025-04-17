@@ -1,9 +1,8 @@
-using System.Security.Cryptography;
-using System.Text;
 using DatabaseService;
 using MessageBroker;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using StackExchange.Redis;
 
 namespace Valuator.Pages;
 
@@ -50,13 +49,9 @@ public class IndexModel : PageModel
         _logger.LogInformation($"Saved text: {text} with id: {id}");
 
         string similarityKey = "SIMILARITY-" + id;
-        string hash = GetStrHash(text);
-        double similarity = CalculateSimilarity(hash, out int count);
+        double similarity = CalculateSimilarity(text, textKey, region);
 
-        _db.Set("MAIN", [
-            new(id, region),
-            new(hash, count.ToString()),
-        ]);
+        _db.Set("MAIN", id, region);
         _db.Set(region, [
             new(textKey, text),
             new(similarityKey, similarity.ToString()),
@@ -72,28 +67,29 @@ public class IndexModel : PageModel
         return Redirect($"summary?id={id}");
     }
 
-    private double CalculateSimilarity(string hash, out int count)
+    private double CalculateSimilarity(string text, string textKey, string shardKey)
     {
-        string textCount = _db.Get("MAIN", hash);
+        IServer server = _db.GetServerOfDB(shardKey);
 
-        if (int.TryParse(textCount, out int result))
-        {
-            count = result + 1;
-            return 1;
-        }
-        else
-        {
-            count = 1;
-            return 0;
-        }
-    }
-    private string GetStrHash(string text)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(text));
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-        }
-    }
+        string[] keys = server.Keys(pattern: "TEXT-*")
+                              .Select(k => (string)k)
+                              .ToArray();
 
+        string[] values = _db.Get(shardKey, keys.ToArray());
+
+        for (int i = 0; i < keys.Length; i++)
+        {
+            if (string.Compare(keys[i], textKey) == 0)
+            {
+                continue;
+            }
+
+            if (string.Compare(text, values[i]) == 0)
+            {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
 }
