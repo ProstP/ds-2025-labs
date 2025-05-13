@@ -13,7 +13,7 @@ public class RankCalculatorTests
     {
         double rank = RankCalculatorService.CalculateRank(text);
 
-        Assert.Equal(expectedRank, rank, precision: 5);
+        Assert.Equal(expectedRank, rank);
     }
 
     public static IEnumerable<object[]> GetTestData()
