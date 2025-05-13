@@ -34,6 +34,11 @@ public class RankCalculatorService
 
     public static double CalculateRank(string text)
     {
+        if (string.IsNullOrEmpty(text))
+        {
+            return 0;
+        }
+
         double count = 0;
 
         foreach (char ch in text)
