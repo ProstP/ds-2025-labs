@@ -32,7 +32,7 @@ public class RankCalculatorService
         _db.Set(shardKey, $"RANK-{id}", rank.ToString());
     }
 
-    private double CalculateRank(string text)
+    public static double CalculateRank(string text)
     {
         double count = 0;
 
@@ -48,7 +48,6 @@ public class RankCalculatorService
     }
     private async Task SendRankAsync(string id, double rank)
     {
-
         await _messageBroker.SendMessageAsync(
             _rankCalculateMessageBrokerExchangeName,
             $"id: {id}, rank: {rank}",
