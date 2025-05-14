@@ -53,7 +53,5 @@ public class IndexPage
     public void SumbitText()
     {
         GetSumbitBtn().Click();
-
-        Thread.Sleep(2000);
     }
 }
