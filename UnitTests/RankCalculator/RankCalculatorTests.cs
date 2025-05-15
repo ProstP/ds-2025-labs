@@ -1,3 +1,6 @@
+using DatabaseService;
+using MessageBroker;
+using Moq;
 using Newtonsoft.Json;
 using RankCalculator.Service;
 
@@ -9,11 +12,29 @@ public class RankCalculatorTests
 
     [Theory]
     [MemberData(nameof(GetTestData))]
-    public void CalculateRank_ShouldReturnExpectedResult(string text, double expectedRank)
+    public async Task CalculateRank_ShouldReturnExpectedResult(string text, double expectedRank)
     {
-        double rank = RankCalculatorService.CalculateRank(text);
+        string id = "id";
+        string shardKey = "key";
 
-        Assert.Equal(expectedRank, rank);
+        Mock<IDatabaseService> dbMock = new Mock<IDatabaseService>();
+        Mock<IMessageBroker> brokerMock = new Mock<IMessageBroker>();
+
+        dbMock.Setup(d => d.Get("MAIN", id)).Returns(shardKey);
+        dbMock.Setup(d => d.Get(shardKey, $"TEXT-{id}")).Returns(text);
+
+        RankCalculatorService rankCalculatorService = new(dbMock.Object, brokerMock.Object);
+
+
+        await rankCalculatorService.Proccess(id);
+
+
+        brokerMock.Verify(b => b.SendMessageAsync(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()), Times.Once);
+
+        dbMock.Verify(m => m.Set(shardKey, $"RANK-{id}", expectedRank.ToString()), Times.Once);
     }
 
     public static IEnumerable<object[]> GetTestData()

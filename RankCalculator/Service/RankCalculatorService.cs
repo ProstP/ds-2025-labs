@@ -32,7 +32,7 @@ public class RankCalculatorService
         _db.Set(shardKey, $"RANK-{id}", rank.ToString());
     }
 
-    public static double CalculateRank(string text)
+    private double CalculateRank(string text)
     {
         if (string.IsNullOrEmpty(text))
         {
