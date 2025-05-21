@@ -52,15 +52,19 @@ public class RedisDatabase : IDatabaseService
     }
     private IConnectionMultiplexer GetConnectionMultiplexer(string shardKey)
     {
-        string environmentLocation = $"REDIS_{shardKey}_CONNECTION_STR";
-        string connectionStr = Environment.GetEnvironmentVariable(environmentLocation);
+        string environmentConnectionLocation = $"REDIS_{shardKey}_CONNECTION_STR";
+        string environmentPasswordLocation = $"REDIS_{shardKey}_PASSWORD";
+        string connectionStr = Environment.GetEnvironmentVariable(environmentConnectionLocation);
+        string password = Environment.GetEnvironmentVariable(environmentPasswordLocation);
 
-        if (string.IsNullOrWhiteSpace(connectionStr))
+        if (string.IsNullOrWhiteSpace(connectionStr) || string.IsNullOrWhiteSpace(password))
         {
             throw new ArgumentException("Unknown shard key");
         }
 
-        return ConnectionMultiplexer.Connect(connectionStr);
+        ConfigurationOptions options = ConfigurationOptions.Parse(connectionStr);
+        options.Password = password;
+        return ConnectionMultiplexer.Connect(options);
     }
 
     public IServer GetServerOfDB(string shardKey)

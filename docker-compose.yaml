@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     networks:
       - app_network
+    command: ["redis-server", "--requirepass", "${REDIS_MAIN_PASSWORD}"]
 
   redisru:
     image: redis:latest
@@ -20,6 +21,7 @@ services:
     restart: unless-stopped
     networks:
       - app_network
+    command: ["redis-server", "--requirepass", "${REDIS_RU_PASSWORD}"]
 
   rediseu:
     image: redis:latest
@@ -31,6 +33,7 @@ services:
     restart: unless-stopped
     networks:
       - app_network
+    command: ["redis-server", "--requirepass", "${REDIS_EU_PASSWORD}"]
 
   redisasia:
     image: redis:latest
@@ -42,6 +45,7 @@ services:
     restart: unless-stopped
     networks:
       - app_network
+    command: ["redis-server", "--requirepass", "${REDIS_ASIA_PASSWORD}"]
 
   rabbitmq:
     image: rabbitmq:latest
