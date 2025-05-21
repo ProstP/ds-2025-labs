@@ -8,8 +8,12 @@ public class Program
     {
         Console.WriteLine("RankCalculator start word");
 
-        RabbitMqService messageBroker = await RabbitMqService.
-            CreateAsync(Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"));
+        RabbitMqService messageBroker = await RabbitMqService.CreateAsync(
+            Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
+            Environment.GetEnvironmentVariable("RABBIT_USERNAME"),
+            Environment.GetEnvironmentVariable("RABBIT_PASSWORD")
+        );
+
         await messageBroker.DeclareTopologyAsync(
             Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
             Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME"));

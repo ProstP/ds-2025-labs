@@ -19,7 +19,10 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
         _channel = channel;
     }
 
-    public static Task<RabbitMqService> CreateAsync(string hostname)
+    public static Task<RabbitMqService> CreateAsync(
+        string hostname,
+        string username,
+        string password)
     {
         AsyncRetryPolicy retryPolicy = Policy
             .Handle<Exception>()
@@ -32,6 +35,8 @@ public class RabbitMqService : IMessageBroker, IAsyncDisposable
             ConnectionFactory factory = new ConnectionFactory()
             {
                 HostName = hostname,
+                UserName = username,
+                Password = password,
             };
 
             IConnection connection = await factory.CreateConnectionAsync();

@@ -55,6 +55,9 @@ services:
     restart: unless-stopped
     networks:
       - app_network
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
 
   rank_calculator:
     build:

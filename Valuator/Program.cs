@@ -16,8 +16,12 @@ public class Program
 
         builder.Services.AddSingleton<IDatabaseService, RedisDatabase>();
 
-        RabbitMqService rabbitMqService = await RabbitMqService.
-            CreateAsync(Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"));
+        RabbitMqService rabbitMqService = await RabbitMqService.CreateAsync(
+            Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
+            Environment.GetEnvironmentVariable("RABBIT_USERNAME"),
+            Environment.GetEnvironmentVariable("RABBIT_PASSWORD")
+        );
+
         await rabbitMqService.DeclareTopologyAsync(
             Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_QUEUE_NAME"),
             Environment.GetEnvironmentVariable("RANK_CALCULATOR_RABBIT_MQ_EXCHANGE_NAME")

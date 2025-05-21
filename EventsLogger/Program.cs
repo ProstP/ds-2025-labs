@@ -6,8 +6,12 @@ internal class Program
     {
         Console.WriteLine("Events logger start word");
 
-        RabbitMqService messageBroker = await RabbitMqService.
-            CreateAsync(Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"));
+        RabbitMqService messageBroker = await RabbitMqService.CreateAsync(
+            Environment.GetEnvironmentVariable("RABBIT_HOSTNAME"),
+            Environment.GetEnvironmentVariable("RABBIT_USERNAME"),
+            Environment.GetEnvironmentVariable("RABBIT_PASSWORD")
+        );
+
         await messageBroker.DeclareTopologyAsync(
             Environment.GetEnvironmentVariable("EVENT_LOGGER_RABBIT_MQ_QUEUE_NAME"),
             Environment.GetEnvironmentVariable("EVENT_LOGGER_RABBIT_MQ_EXCHANGE_NAME"),
