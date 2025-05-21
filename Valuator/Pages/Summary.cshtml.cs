@@ -1,7 +1,10 @@
 ﻿using DatabaseService;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Valuator.Pages;
+
 public class SummaryModel : PageModel
 {
     private readonly ILogger<SummaryModel> _logger;
@@ -16,13 +19,24 @@ public class SummaryModel : PageModel
     public double Rank { get; set; }
     public double Similarity { get; set; }
 
-    public void OnGet(string id)
+    public IActionResult OnGet(string id)
     {
         _logger.LogDebug(id);
 
+        string usernameActual = User.Identity.Name;
+        if (string.IsNullOrWhiteSpace(usernameActual))
+        {
+            return Redirect("login");
+        }
+
         string shardKey = _db.Get("MAIN", id);
 
-        string[] values = _db.Get(shardKey, [$"RANK-{id}", $"SIMILARITY-{id}"]);
+        string[] values = _db.Get(shardKey, [$"RANK-{id}", $"SIMILARITY-{id}", id]);
+
+        if (usernameActual != values[2])
+        {
+            return Redirect("index");
+        }
 
         if (double.TryParse(values[0], out double rank))
         {
@@ -33,5 +47,7 @@ public class SummaryModel : PageModel
         {
             Similarity = similarity;
         }
+
+        return Page();
     }
 }

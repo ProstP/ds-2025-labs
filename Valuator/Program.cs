@@ -2,6 +2,7 @@ using DatabaseService;
 using DatabaseService.Redis;
 using MessageBroker;
 using MessageBroker.Rabbit;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Valuator;
 
@@ -13,6 +14,13 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddRazorPages();
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Login";
+                options.LogoutPath = "/Logout";
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+            });
 
         builder.Services.AddSingleton<IDatabaseService, RedisDatabase>();
 
@@ -45,6 +53,7 @@ public class Program
         app.UseRouting();
 
         app.UseAuthorization();
+        app.UseAuthentication();
 
         app.MapRazorPages();
 

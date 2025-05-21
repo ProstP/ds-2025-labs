@@ -41,6 +41,13 @@ public class IndexModel : PageModel
             return Redirect("index");
         }
 
+        string username = User.Identity.Name;
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return Redirect("login");
+        }
+
         string id = Guid.NewGuid().ToString();
 
         string textKey = "TEXT-" + id;
@@ -53,6 +60,7 @@ public class IndexModel : PageModel
 
         _db.Set("MAIN", id, region);
         _db.Set(region, [
+            new(id, username),
             new(textKey, text),
             new(similarityKey, similarity.ToString()),
         ]);
