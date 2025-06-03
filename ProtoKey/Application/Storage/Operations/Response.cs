@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ProtoKey.Application.Storage.Operations;
 
 public enum ResponseType
@@ -54,5 +56,20 @@ public struct Response
             Keys = null,
             ErrorMessage = errorMessage,
         };
+    }
+
+    public override int GetHashCode()
+    {
+        return (Type, Value, Keys, ErrorMessage).GetHashCode();
+    }
+    public override bool Equals([NotNullWhen(true)] object obj)
+    {
+        if (obj is Response response)
+        {
+            return Type == response.Type && Value == response.Value
+                && Keys.SequenceEqual(response.Keys) && ErrorMessage == response.ErrorMessage;
+        }
+
+        return false;
     }
 }

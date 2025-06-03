@@ -49,7 +49,7 @@ public class ProtoKeyStorage
                 }
                 else
                 {
-                    throw new ArgumentNullException("Key or value is not valid on set command");
+                    throw new ArgumentException("Key or value is not valid on set command");
                 }
                 break;
             case CommandType.GET:
@@ -61,7 +61,7 @@ public class ProtoKeyStorage
                 }
                 else
                 {
-                    throw new ArgumentNullException("Key is not valid on get command");
+                    throw new ArgumentException("Key is not valid on get command");
                 }
                 break;
             case CommandType.KEYS:

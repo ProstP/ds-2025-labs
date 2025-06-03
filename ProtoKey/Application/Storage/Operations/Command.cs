@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ProtoKey.Application.Storage.Operations;
 
 public enum CommandType
@@ -43,5 +45,20 @@ public struct Command
             Value = null,
             Prefix = prefix,
         };
+    }
+
+    public override int GetHashCode()
+    {
+        return (Type, Key, Value, Prefix).GetHashCode();
+    }
+    public override bool Equals([NotNullWhen(true)] object obj)
+    {
+        if (obj is Command command)
+        {
+            return Type == command.Type && Key == command.Key
+                && Value == command.Value && Prefix == command.Prefix;
+        }
+
+        return false;
     }
 }
