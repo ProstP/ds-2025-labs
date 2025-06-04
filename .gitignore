@@ -6,3 +6,5 @@ obj/
 /.idea/
 
 redisdata/
+
+*.data

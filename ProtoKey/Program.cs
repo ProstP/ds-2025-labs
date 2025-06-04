@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using ProtoKey.Application.Save;
 using ProtoKey.Application.Storage;
 using ProtoKey.Application.Storage.Operations;
 using ProtoKey.Application.Validator;
@@ -6,6 +7,7 @@ using ProtoKey.Application.Validator;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 Channel<Command> commandChannel = Channel.CreateUnbounded<Command>();
+Channel<Command> saveChannel = Channel.CreateUnbounded<Command>();
 Channel<Response> responseChannel = Channel.CreateUnbounded<Response>();
 ProtoKeyValidator protoKeyValidator = new();
 
@@ -19,9 +21,17 @@ builder.Services.AddSwaggerGen();
 
 WebApplication app = builder.Build();
 
-ProtoKeyStorage storage = new(commandChannel, responseChannel, protoKeyValidator);
+ProtoKeyStorage storage = new(
+    commandChannel,
+    saveChannel,
+    responseChannel,
+    protoKeyValidator);
+SaveService saveService = new(saveChannel);
+
+await saveService.LoadData(commandChannel);
 
 Task.Run(storage.RunAsync);
+Task.Run(saveService.RunAsync);
 
 app.UseSwagger();
 app.UseSwaggerUI();

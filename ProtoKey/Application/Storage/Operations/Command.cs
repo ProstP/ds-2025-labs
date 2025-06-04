@@ -11,10 +11,10 @@ public enum CommandType
 
 public struct Command
 {
-    public CommandType Type;
-    public string Key;
-    public int? Value;
-    public string Prefix;
+    public CommandType Type { get; set; }
+    public string Key { get; set; }
+    public int? Value { get; set; }
+    public string Prefix { get; set; }
 
     public static Command CreateSet(string key, int value)
     {

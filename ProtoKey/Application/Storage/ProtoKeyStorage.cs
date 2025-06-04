@@ -8,17 +8,20 @@ public class ProtoKeyStorage
 {
     Dictionary<string, int> _storage = [];
     private readonly ChannelReader<Command> _commandReader;
+    private readonly ChannelWriter<Command> _saveWriter;
     private readonly ChannelWriter<Response> _responseWriter;
     private readonly ProtoKeyValidator _protoKeyValidator;
 
     public ProtoKeyStorage(
         Channel<Command> commandChannel,
+        Channel<Command> saveChannel,
         Channel<Response> responseChannel,
         ProtoKeyValidator validator)
     {
         _commandReader = commandChannel.Reader;
         _responseWriter = responseChannel.Writer;
         _protoKeyValidator = validator;
+        _saveWriter = saveChannel.Writer;
     }
 
     public async void RunAsync()
@@ -38,6 +41,8 @@ public class ProtoKeyStorage
 
     private async Task HandleCommand(Command command)
     {
+        Response response;
+
         switch (command.Type)
         {
             case CommandType.SET:
@@ -45,7 +50,7 @@ public class ProtoKeyStorage
                 {
                     HandleSet(command.Key, valueToSet);
 
-                    await _responseWriter.WriteAsync(Response.CreateSet());
+                    response = Response.CreateSet();
                 }
                 else
                 {
@@ -57,7 +62,7 @@ public class ProtoKeyStorage
                 {
                     int valueToGet = HandleGet(command.Key);
 
-                    await _responseWriter.WriteAsync(Response.CreateGet(valueToGet));
+                    response = Response.CreateGet(valueToGet);
                 }
                 else
                 {
@@ -67,10 +72,17 @@ public class ProtoKeyStorage
             case CommandType.KEYS:
                 string[] keys = HandleKeys(command.Prefix);
 
-                await _responseWriter.WriteAsync(Response.CreateKeys(keys));
+                response = Response.CreateKeys(keys);
                 break;
             default:
                 throw new ArgumentException("Unknown type of command");
+        }
+
+        await _responseWriter.WriteAsync(response);
+
+        if (response.Type != ResponseType.ERROR)
+        {
+            await _saveWriter.WriteAsync(command);
         }
     }
     private void HandleSet(string key, int value)
