@@ -28,7 +28,7 @@ ProtoKeyStorage storage = new(
     protoKeyValidator);
 SaveService saveService = new(saveChannel);
 
-await saveService.LoadData(commandChannel);
+storage.InitStorage(saveService.LoadData());
 
 Task.Run(storage.RunAsync);
 Task.Run(saveService.RunAsync);

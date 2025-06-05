@@ -8,7 +8,7 @@ public class ProtoKeyStorage
 {
     Dictionary<string, int> _storage = [];
     private readonly ChannelReader<Command> _commandReader;
-    private readonly ChannelWriter<Command> _saveWriter;
+    private readonly Channel<Command> _saveChannel;
     private readonly ChannelWriter<Response> _responseWriter;
     private readonly ProtoKeyValidator _protoKeyValidator;
 
@@ -21,7 +21,23 @@ public class ProtoKeyStorage
         _commandReader = commandChannel.Reader;
         _responseWriter = responseChannel.Writer;
         _protoKeyValidator = validator;
-        _saveWriter = saveChannel.Writer;
+        _saveChannel = saveChannel;
+    }
+
+    public void InitStorage(Command[] commands)
+    {
+        foreach (Command command in commands)
+        {
+            if (command.Type != CommandType.SET)
+            {
+                continue;
+            }
+
+            if (command.Value is int valueToSet && _protoKeyValidator.IsValidKey(command.Key))
+            {
+                HandleSet(command.Key, valueToSet);
+            }
+        }
     }
 
     public async void RunAsync()
@@ -82,7 +98,7 @@ public class ProtoKeyStorage
 
         if (response.Type != ResponseType.ERROR)
         {
-            await _saveWriter.WriteAsync(command);
+            await _saveChannel.Writer.WriteAsync(command);
         }
     }
     private void HandleSet(string key, int value)

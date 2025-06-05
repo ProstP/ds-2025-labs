@@ -146,7 +146,7 @@ public class ProtoKeyStorageTests
     }
     private void CreateAndRunStorage()
     {
-        ProtoKeyStorage storage = new(_commandChannel, _responseChannel, _validator);
+        ProtoKeyStorage storage = new(_commandChannel, _responseChannel, _validator, );
 
         Task.Run(storage.RunAsync);
     }

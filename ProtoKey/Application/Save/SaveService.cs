@@ -16,11 +16,12 @@ public class SaveService
         _channel = channel;
     }
 
-    public async Task LoadData(Channel<Command> channelToCommands)
+    public Command[] LoadData()
     {
+        List<Command> list = [];
         if (!File.Exists(DATA_FILE_PATH))
         {
-            return;
+            return [];
         }
 
         foreach (string line in File.ReadAllLines(DATA_FILE_PATH))
@@ -34,9 +35,11 @@ public class SaveService
 
             if (command.Type == CommandType.SET)
             {
-                await channelToCommands.Writer.WriteAsync(command);
+                list.Add(command);
             }
         }
+
+        return list.ToArray();
     }
 
     public async void RunAsync()
